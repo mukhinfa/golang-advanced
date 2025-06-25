@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	chSlice := make(chan int)
 	chSqrs := make(chan int)
 	sl := make([]int, 0, 10)
@@ -20,8 +23,7 @@ func main() {
 		close(chSlice)
 	}()
 	go func() {
-		for range 10 {
-			v := <-chSlice
+		for v := range <-chSlice {
 			chSqrs <- v * v
 		}
 		close(chSqrs)
