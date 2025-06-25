@@ -23,7 +23,7 @@ func main() {
 		close(chSlice)
 	}()
 	go func() {
-		for v := range <-chSlice {
+		for v := range chSlice {
 			chSqrs <- v * v
 		}
 		close(chSqrs)
