@@ -1,7 +1,26 @@
 package configs
 
+import (
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
+)
+
 type Config struct {
-	Email    string
-	Password string
-	Address  string
+	Email    string `env:"EMAIL"`
+	Password string `env:"PASSWORD"`
+	Address  string `env:"ADDRESS"`
+}
+
+func LoadConfig() *Config {
+	err := godotenv.Load()
+	if err != nil {
+		log.Printf("Error loading .env file: %v", err)
+	}
+	return &Config{
+		Email:    os.Getenv("EMAIL"),
+		Password: os.Getenv("PASSWORD"),
+		Address:  os.Getenv("ADDRESS"),
+	}
 }

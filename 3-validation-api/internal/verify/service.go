@@ -42,6 +42,8 @@ func (v *VerifyService) SendEmail(emailAddr string) error {
 	text := domain + "/verify/" + hash
 
 	e.Text = []byte(text)
+	e.From = v.config.Email
+	e.Subject = "Email Verification"
 	if err := e.Send(v.config.Address, smtp.PlainAuth("", v.config.Email, v.config.Password, "smtp.gmail.com")); err != nil {
 		return err
 	}
@@ -52,13 +54,13 @@ func (v *VerifyService) SendEmail(emailAddr string) error {
 	return nil
 }
 
-func (v *VerifyService) VerifyEmail(hash string) (string, error) {
-	url, err := v.storage.Find(hash)
+func (v *VerifyService) VerifyEmail(hash string) (bool, error) {
+	_, err := v.storage.Find(hash)
 	if err != nil {
-		return "", err
+		return false, err
 	}
 	if err := v.storage.Delete(hash); err != nil {
-		return "", err
+		return false, err
 	}
-	return url, nil
+	return true, nil
 }

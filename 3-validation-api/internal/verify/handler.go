@@ -41,11 +41,15 @@ func (h VerifyHandler) Send() http.HandlerFunc {
 func (h VerifyHandler) Verify() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		hash := r.PathValue("hash")
-		url, err := h.service.VerifyEmail(hash)
+		isVerified, err := h.service.VerifyEmail(hash)
 		if err != nil {
 			res.JSONResponse(w, http.StatusBadRequest, err)
 			return
 		}
-		http.Redirect(w, r, url, http.StatusSeeOther)
+		if !isVerified {
+			res.JSONResponse(w, http.StatusNotFound, "Invalid or expired verification link")
+			return
+		}
+		res.JSONResponse(w, http.StatusOK, "Email verified successfully")
 	}
 }
