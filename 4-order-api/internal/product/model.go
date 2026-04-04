@@ -11,3 +11,11 @@ type Product struct {
 	Description string         `json:"description,omitempty"`
 	Images      pq.StringArray `json:"images,omitempty" gorm:"type:jsonb"`
 }
+
+func NewProduct(name, description string, images []string) *Product {
+	return &Product{
+		Name:        name,
+		Description: description,
+		Images:      images,
+	}
+}
