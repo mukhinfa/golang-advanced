@@ -1,13 +1,9 @@
 package verify
 
 import (
-	"crypto/rand"
-	"encoding/hex"
-	"net/smtp"
-
-	"github.com/jordan-wright/email"
-
 	"github.com/mukhinfa/golang-advanced/3-validation-api/configs"
+	"github.com/mukhinfa/golang-advanced/3-validation-api/pkg/email"
+	"github.com/mukhinfa/golang-advanced/3-validation-api/pkg/utils"
 )
 
 type Storage interface {
@@ -16,35 +12,38 @@ type Storage interface {
 	Delete(hash string) error
 }
 
+type SendEmail interface {
+	Send(c configs.Config, to, subject, body string) error
+}
+
 const domain = "http://localhost:8081"
+const verifyPath = "/verify/"
+const emailSubject = "Verify Email"
 
 type VerifyService struct {
 	storage Storage
 	config  configs.Config
+	email   SendEmail
 }
 
 func NewVerifyService(s Storage, c configs.Config) *VerifyService {
 	return &VerifyService{
 		storage: s,
 		config:  c,
+		email:   email.New(),
 	}
 }
 
 func (v *VerifyService) SendEmail(emailAddr string) error {
-	e := email.NewEmail()
-	e.To = []string{emailAddr}
-
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
+	hash, err := utils.GenerateHash()
+	if err != nil {
 		return err
 	}
-	hash := hex.EncodeToString(b)
-	text := domain + "/verify/" + hash
 
-	e.Text = []byte(text)
-	e.From = v.config.Email
-	e.Subject = "Email Verification"
-	if err := e.Send(v.config.Address, smtp.PlainAuth("", v.config.Email, v.config.Password, "smtp.gmail.com")); err != nil {
+	if err := v.email.Send(v.config,
+		emailAddr,
+		emailSubject,
+		domain+verifyPath+hash); err != nil {
 		return err
 	}
 
