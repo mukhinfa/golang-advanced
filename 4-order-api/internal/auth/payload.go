@@ -1,7 +1,7 @@
 package auth
 
 type PhoneRequest struct {
-	Phone string `json:"phone" validate:"required"`
+	Phone string `json:"phone" validate:"required,len=11,numeric,startswith=8"`
 }
 
 type PhoneResponse struct {

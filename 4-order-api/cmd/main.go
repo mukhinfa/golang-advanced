@@ -38,10 +38,12 @@ func main() {
 
 	// Dependencies
 	authDeps := auth.NewAuthHandlerDeps(authService)
+	authMw := middleware.IsAuthed(jwtSvc)
 
 	// Handlers
 	product.NewProductHandler(router, product.ProductHandlerDeps{
 		ServiceInterface: productService,
+		AuthMiddleware:   authMw,
 	})
 	auth.NewAuthHandler(router, authDeps)
 

@@ -6,6 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.30.2
 	github.com/jordan-wright/email v4.0.1-0.20210109023952-943e75fe5223+incompatible
 	github.com/lib/pq v1.12.2
+	github.com/sirupsen/logrus v1.9.4
 )
 
 require (
@@ -15,7 +16,6 @@ require (
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/sirupsen/logrus v1.9.4 // indirect
 	golang.org/x/sync v0.20.0 // indirect
 )
 
