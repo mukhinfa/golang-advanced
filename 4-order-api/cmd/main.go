@@ -8,8 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mukhinfa/golang-advanced/4-order-api/configs"
+	"github.com/mukhinfa/golang-advanced/4-order-api/internal/auth"
 	"github.com/mukhinfa/golang-advanced/4-order-api/internal/product"
 	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/db"
+	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/jwt"
 	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/middleware"
 )
 
@@ -24,16 +26,28 @@ func init() {
 func main() {
 	config := configs.LoadConfig()
 	db := db.New(&config.DB)
-
 	router := http.NewServeMux()
+	jwtSvc := jwt.NewJWT(config.Auth.Secret)
 
+	// Repos
 	productRepo := product.NewProductRepository(*db)
-	productService := product.NewService(productRepo)
 
+	// Services
+	productService := product.NewService(productRepo)
+	authService := auth.NewAuthService(jwtSvc)
+
+	// Dependencies
+	authDeps := auth.NewAuthHandlerDeps(authService)
+	authMw := middleware.IsAuthed(jwtSvc)
+
+	// Handlers
 	product.NewProductHandler(router, product.ProductHandlerDeps{
 		ServiceInterface: productService,
+		AuthMiddleware:   authMw,
 	})
+	auth.NewAuthHandler(router, authDeps)
 
+	// Middlewares
 	stack := middleware.Chain(
 		middleware.CORS,
 		middleware.Logging,

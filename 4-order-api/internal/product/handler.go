@@ -21,6 +21,7 @@ type ServiceInterface interface {
 
 type ProductHandlerDeps struct {
 	ServiceInterface
+	AuthMiddleware func(http.Handler) http.Handler
 }
 
 type productHandler struct {
@@ -31,11 +32,12 @@ func NewProductHandler(r *http.ServeMux, deps ProductHandlerDeps) {
 	handler := &productHandler{
 		ServiceInterface: deps.ServiceInterface,
 	}
-	r.HandleFunc("POST /products", handler.createProduct())
-	r.HandleFunc("GET /products/{id}", handler.getProduct())
-	r.HandleFunc("PUT /products/{id}", handler.updateProduct())
-	r.HandleFunc("DELETE /products/{id}", handler.deleteProduct())
-	r.HandleFunc("GET /products", handler.listProducts())
+	authed := deps.AuthMiddleware
+	r.Handle("POST /products", authed(handler.createProduct()))
+	r.Handle("GET /products/{id}", authed(handler.getProduct()))
+	r.Handle("PUT /products/{id}", authed(handler.updateProduct()))
+	r.Handle("DELETE /products/{id}", authed(handler.deleteProduct()))
+	r.Handle("GET /products", authed(handler.listProducts()))
 }
 
 func (h *productHandler) createProduct() http.HandlerFunc {
