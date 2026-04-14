@@ -28,7 +28,7 @@ type authService struct {
 	sessions map[string]session
 }
 
-func NewAuthService(jwt JWT) *authService {
+func NewService(jwt JWT) *authService {
 	return &authService{
 		JWT:      jwt,
 		sessions: make(map[string]session),

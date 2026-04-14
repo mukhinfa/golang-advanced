@@ -28,7 +28,7 @@ type productHandler struct {
 	ServiceInterface
 }
 
-func NewProductHandler(r *http.ServeMux, deps ProductHandlerDeps) {
+func NewHandler(r *http.ServeMux, deps ProductHandlerDeps) {
 	handler := &productHandler{
 		ServiceInterface: deps.ServiceInterface,
 	}

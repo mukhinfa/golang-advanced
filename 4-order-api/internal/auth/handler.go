@@ -12,7 +12,7 @@ type AuthHandlerDeps struct {
 	Service *authService
 }
 
-func NewAuthHandlerDeps(service *authService) AuthHandlerDeps {
+func NewHandlerDeps(service *authService) AuthHandlerDeps {
 	return AuthHandlerDeps{
 		Service: service,
 	}
@@ -22,7 +22,7 @@ type authHandler struct {
 	service *authService
 }
 
-func NewAuthHandler(r *http.ServeMux, deps AuthHandlerDeps) {
+func NewHandler(r *http.ServeMux, deps AuthHandlerDeps) {
 	handler := &authHandler{
 		service: deps.Service,
 	}

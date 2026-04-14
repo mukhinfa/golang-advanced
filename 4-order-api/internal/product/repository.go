@@ -9,10 +9,10 @@ import (
 )
 
 type productRepository struct {
-	Database db.Db
+	Database *db.Db
 }
 
-func NewProductRepository(db db.Db) *productRepository {
+func NewRepository(db *db.Db) *productRepository {
 	return &productRepository{
 		Database: db,
 	}

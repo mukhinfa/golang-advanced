@@ -9,7 +9,9 @@ import (
 
 	"github.com/mukhinfa/golang-advanced/4-order-api/configs"
 	"github.com/mukhinfa/golang-advanced/4-order-api/internal/auth"
+	"github.com/mukhinfa/golang-advanced/4-order-api/internal/order"
 	"github.com/mukhinfa/golang-advanced/4-order-api/internal/product"
+	"github.com/mukhinfa/golang-advanced/4-order-api/internal/user"
 	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/db"
 	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/jwt"
 	"github.com/mukhinfa/golang-advanced/4-order-api/pkg/middleware"
@@ -30,22 +32,33 @@ func main() {
 	jwtSvc := jwt.NewJWT(config.Auth.Secret)
 
 	// Repos
-	productRepo := product.NewProductRepository(*db)
+	userRepo := user.NewRepository(db)
+	orderRepo := order.NewRepository(db)
+	productRepo := product.NewRepository(db)
 
 	// Services
 	productService := product.NewService(productRepo)
-	authService := auth.NewAuthService(jwtSvc)
+	authService := auth.NewService(jwtSvc)
+	userService := user.NewService(userRepo)
+	orderService := order.NewService(
+		orderRepo,
+		productService,
+		userService)
 
 	// Dependencies
-	authDeps := auth.NewAuthHandlerDeps(authService)
+	authDeps := auth.NewHandlerDeps(authService)
 	authMw := middleware.IsAuthed(jwtSvc)
 
 	// Handlers
-	product.NewProductHandler(router, product.ProductHandlerDeps{
+	product.NewHandler(router, product.ProductHandlerDeps{
 		ServiceInterface: productService,
 		AuthMiddleware:   authMw,
 	})
-	auth.NewAuthHandler(router, authDeps)
+	auth.NewHandler(router, authDeps)
+	order.NewHandler(router, order.OrderHandlerDeps{
+		OrderService:   orderService,
+		AuthMiddleware: authMw,
+	})
 
 	// Middlewares
 	stack := middleware.Chain(

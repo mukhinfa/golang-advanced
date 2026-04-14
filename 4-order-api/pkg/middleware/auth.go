@@ -33,3 +33,11 @@ func IsAuthed(parser TokenParser) func(http.Handler) http.Handler {
 		})
 	}
 }
+
+func GetPhone(r *http.Request) *string {
+	phone, ok := r.Context().Value(PhoneCtxKey).(string)
+	if !ok {
+		return nil
+	}
+	return &phone
+}
